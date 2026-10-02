@@ -4,7 +4,6 @@
 
 [![ISE Eiffel](https://img.shields.io/badge/toolchain-ISE%20Eiffel-17365D)](https://www.eiffel.com/)
 [![Gobo Eiffel](https://img.shields.io/badge/toolchain-Gobo%20Eiffel-8B5A2B)](https://www.gobosoft.com/)
-
 [![CI](https://github.com/Eiffel-Workshop/shablon/actions/workflows/ci.yml/badge.svg)](https://github.com/Eiffel-Workshop/shablon/actions/workflows/ci.yml)
 
 A small and friendly string formatter for Eiffel.
