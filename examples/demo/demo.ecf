@@ -14,7 +14,7 @@
         <library name="ise_base" location="$ISE_LIBRARY/library/base/base.ecf">
             <condition><custom name="GOBO_EIFFEL" excluded_value="ge"/></condition>
         </library>
-        <library name="shablon" location="../../shablon.ecf" readonly="true"/>
+        <library name="shablon" location="../../shablon.ecf" readonly="false"/>
         <cluster name="demo" location="." recursive="false"/>
     </target>
 </system>
