@@ -1,3 +1,13 @@
+note
+
+	description:
+
+		"Describe a formatting failure so callers can identify its cause and locate it in the template."
+
+	author: "samedit66"
+	email: "samedit66@yandex.ru"
+	date: "2026-10-03"
+
 class SHABLON_FORMAT_ERROR
 
 inherit
@@ -48,6 +58,7 @@ feature -- Access
 feature -- Categories
 
 	invalid_field: IMMUTABLE_STRING_8
+			-- Category for an unfinished field or invalid argument-index syntax.
 		once
 			create Result.make_from_string ("invalid_field")
 		ensure
@@ -55,6 +66,7 @@ feature -- Categories
 		end
 
 	unexpected_closing_brace: IMMUTABLE_STRING_8
+			-- Category for a closing brace that is neither escaped nor part of a field.
 		once
 			create Result.make_from_string ("unexpected_closing_brace")
 		ensure
@@ -62,6 +74,7 @@ feature -- Categories
 		end
 
 	mixed_field_modes: IMMUTABLE_STRING_8
+			-- Category for mixing omitted and explicit argument indices in a template.
 		once
 			create Result.make_from_string ("mixed_field_modes")
 		ensure
@@ -69,6 +82,7 @@ feature -- Categories
 		end
 
 	index_out_of_range: IMMUTABLE_STRING_8
+			-- Category for an argument index exceeding the supported integer range.
 		once
 			create Result.make_from_string ("index_out_of_range")
 		ensure
@@ -76,6 +90,7 @@ feature -- Categories
 		end
 
 	missing_argument: IMMUTABLE_STRING_8
+			-- Category for a field selecting an argument outside the supplied tuple.
 		once
 			create Result.make_from_string ("missing_argument")
 		ensure
@@ -83,8 +98,25 @@ feature -- Categories
 		end
 
 	void_argument: IMMUTABLE_STRING_8
+			-- Category for a field selecting a void tuple item.
 		once
 			create Result.make_from_string ("void_argument")
+		ensure
+			instance_free: class
+		end
+
+	invalid_specification: IMMUTABLE_STRING_8
+			-- Category for unsupported presentation syntax or a size outside its supported range.
+		once
+			create Result.make_from_string ("invalid_specification")
+		ensure
+			instance_free: class
+		end
+
+	incompatible_format: IMMUTABLE_STRING_8
+			-- Category for a presentation option that cannot be applied to the selected value.
+		once
+			create Result.make_from_string ("incompatible_format")
 		ensure
 			instance_free: class
 		end

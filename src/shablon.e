@@ -1,14 +1,73 @@
+note
+
+	description:
+	"[
+		Unicode string formatting with positional fields, escaped braces and numeric presentation.
+
+		### Usage
+
+		Inherit `SHABLON` to call `format` directly:
+
+		```eiffel
+		message := format ("Hello, {}!", "Alice")
+		-- Hello, Alice!
+		```
+
+		Use a class call without inheritance:
+
+		```eiffel
+		message := {SHABLON}.format ("{1} invited {0}.", "Bob", "Alice")
+		-- Alice invited Bob.
+		```
+
+		Add presentation options after a colon:
+
+		```eiffel
+		message := {SHABLON}.format ("Total: {:,.2f}", 12345.5)
+		-- Total: 12,345.50
+		```
+
+		Values can be passed as ordinary arguments; EiffelStudio and Gobo collect them
+		into the final tuple parameter. An explicit tuple is also accepted:
+
+		```eiffel
+		message := {SHABLON}.format ("Hello, {}!", ["Alice"])
+		message := {SHABLON}.format ("No values needed.", [])
+		```
+
+		To format a tuple as one value, wrap it: `format ("{}", [tuple_value])`.
+		Numbered fields are zero-based;
+		automatic and numbered fields cannot be mixed in one template.
+		Use `{{` and `}}` for literal braces. Each call returns a fresh `STRING_32`.
+		Invalid fields, arguments or presentation options raise `SHABLON_FORMAT_ERROR`.
+		]"
+	author: "samedit66"
+	email: "samedit66@yandex.ru"
+	date: "2026-10-03"
+
 class SHABLON
+
+inherit {NONE}
+
+	SHABLON_FIELD_PARSER
+		export {NONE} all end
+
+	SHABLON_VALUE_FORMATTER
+		export {NONE} all end
+
+	SHABLON_ERROR_HELPER
+		export {NONE} all end
 
 feature -- Formatting
 
 	format (a_template: READABLE_STRING_GENERAL; a_arguments: TUPLE): STRING_32
-			-- New text with fields replaced by their corresponding arguments.
-			-- Automatic fields and zero-based numbered fields cannot be mixed.
+			-- Return fresh text after processing fields and escapes from left to right.
+			-- Field syntax and mode errors precede argument lookup; inserted text is never parsed.
 		local
-			i, j, field_start, field_index, next_index, mode, digit: INTEGER
+			i, j, colon, index_end, next_index, mode: INTEGER
+			selection: like parsed_index
+			spec: like parsed_specification
 			c: CHARACTER_32
-			is_automatic, invalid_index, index_overflow: BOOLEAN
 		do
 			create Result.make (a_template.count)
 			from
@@ -17,76 +76,47 @@ feature -- Formatting
 				i > a_template.count
 			loop
 				c := a_template [i]
-				if c = '{' then
-					if i < a_template.count and then a_template [i + 1] = '{' then
-						Result.append_character ('{')
-						i := i + 2
-					else
-						field_start := i
-						i := i + 1
-						from
-							j := i
-						until
-							j > a_template.count or else a_template [j] = '}'
-						loop
-							j := j + 1
+				if (c = '{' or c = '}') and then i < a_template.count and then a_template [i + 1] = c then
+					Result.append_character (c)
+					i := i + 2
+				elseif c = '{' then
+					colon := 0
+					from
+						j := i + 1
+					until
+						j > a_template.count or else a_template [j] = '}'
+					loop
+						if a_template [j] = ':' and colon = 0 then
+							colon := j
 						end
-						if j > a_template.count then
-							fail ({SHABLON_FORMAT_ERROR}.invalid_field, field_start, -1)
-						end
-						is_automatic := j = i
-						field_index := 0
-						invalid_index := False
-						index_overflow := False
-						if is_automatic then
-							field_index := next_index
-						else
-							invalid_index := j - i > 1 and then a_template [i] = '0'
-							from
-							until
-								i >= j
-							loop
-								c := a_template [i]
-								if c < '0' or c > '9' then
-									invalid_index := True
-								elseif not index_overflow then
-									digit := c.code - ('0').code
-									if field_index > ({INTEGER_32}.max_value - digit) // 10 then
-										index_overflow := True
-									else
-										field_index := field_index * 10 + digit
-									end
-								end
-								i := i + 1
-							end
-						end
-						if invalid_index then
-							fail ({SHABLON_FORMAT_ERROR}.invalid_field, field_start, -1)
-						end
-						if (is_automatic and mode = 2) or (not is_automatic and mode = 1) then
-							fail ({SHABLON_FORMAT_ERROR}.mixed_field_modes, field_start, -1)
-						end
-						if index_overflow then
-							fail ({SHABLON_FORMAT_ERROR}.index_out_of_range, field_start, -1)
-						end
-						if is_automatic then
-							mode := 1
-						else
-							mode := 2
-						end
-						append_argument (Result, a_arguments, field_index, field_start)
-						if is_automatic then
-							next_index := next_index + 1
-						end
-						i := j + 1
+						j := j + 1
 					end
+					if j > a_template.count then
+						fail ({SHABLON_FORMAT_ERROR}.invalid_field, i, -1)
+					end
+					index_end := j - 1
+					if colon > 0 then
+						index_end := colon - 1
+					end
+					selection := parsed_index (a_template, i + 1, index_end, i)
+					spec := parsed_specification (a_template, colon, j - 1, i)
+					if (selection.automatic and mode = 2) or (not selection.automatic and mode = 1) then
+						fail ({SHABLON_FORMAT_ERROR}.mixed_field_modes, i, -1)
+					end
+					if selection.overflow then
+						fail ({SHABLON_FORMAT_ERROR}.index_out_of_range, i, -1)
+					end
+					if selection.automatic then
+						mode := 1
+						selection.index := next_index
+						next_index := next_index + 1
+					else
+						mode := 2
+					end
+					append_argument (Result, a_arguments, selection.index, i, spec)
+					i := j + 1
 				elseif c = '}' then
-					if i < a_template.count and then a_template [i + 1] = '}' then
-						Result.append_character ('}')
-						i := i + 2
-					else
-						fail ({SHABLON_FORMAT_ERROR}.unexpected_closing_brace, i, -1)
-					end
+					fail ({SHABLON_FORMAT_ERROR}.unexpected_closing_brace, i, -1)
 				else
 					Result.append_character (c)
 					i := i + 1
@@ -96,46 +126,19 @@ feature -- Formatting
 			instance_free: class
 		end
 
-feature {NONE} -- Implementation
+feature {NONE} -- Value rendering
 
-	append_argument (a_result: STRING_32; a_arguments: TUPLE; a_index, a_position: INTEGER)
-			-- Append the selected argument, checking the index before adding one.
+	append_argument (output: STRING_32; arguments: TUPLE; index, position: INTEGER; spec: like parsed_specification)
+			-- Append one selected value, or raise a missing/void argument error.
+			-- Check the zero-based index before adding one, avoiding overflow at INTEGER_32.max_value.
 		do
-			if a_index >= a_arguments.count then
-				fail ({SHABLON_FORMAT_ERROR}.missing_argument, a_position, a_index)
-			elseif attached a_arguments [a_index + 1] as value then
-				append_value (a_result, value)
+			if index >= arguments.count then
+				fail ({SHABLON_FORMAT_ERROR}.missing_argument, position, index)
+			elseif attached arguments [index + 1] as value then
+				output.append (rendered_value (value, spec, position, index))
 			else
-				fail ({SHABLON_FORMAT_ERROR}.void_argument, a_position, a_index)
+				fail ({SHABLON_FORMAT_ERROR}.void_argument, position, index)
 			end
-		ensure
-			instance_free: class
-		end
-
-	append_value (a_result: STRING_32; a_value: separate ANY)
-			-- Append strings as text and other values through `out'.
-		local
-			text: STRING_8
-		do
-			if attached {READABLE_STRING_GENERAL} a_value as string then
-				a_result.append_string_general (string)
-			elseif attached {separate READABLE_STRING_GENERAL} a_value as string then
-				a_result.append (create {STRING_32}.make_from_separate (string))
-			else
-				create text.make_from_separate (a_value.out)
-				a_result.append_string_general (text)
-			end
-		ensure
-			instance_free: class
-		end
-
-	fail (a_category: READABLE_STRING_8; a_position, a_index: INTEGER)
-			-- Raise a formatting error at `a_position'.
-		local
-			error: SHABLON_FORMAT_ERROR
-		do
-			create error.make (a_category, a_position, a_index)
-			error.raise
 		ensure
 			instance_free: class
 		end
