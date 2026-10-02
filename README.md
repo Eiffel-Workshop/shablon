@@ -5,6 +5,8 @@
 [![ISE Eiffel](https://img.shields.io/badge/toolchain-ISE%20Eiffel-17365D)](https://www.eiffel.com/)
 [![Gobo Eiffel](https://img.shields.io/badge/toolchain-Gobo%20Eiffel-8B5A2B)](https://www.gobosoft.com/)
 
+[![CI](https://github.com/samedit66/shablon/actions/workflows/ci.yml/badge.svg)](https://github.com/samedit66/shablon/actions/workflows/ci.yml)
+
 A small and friendly string formatter for Eiffel.
 
 [Grammar](docs/grammar.md) · [API](src/shablon.e) · [Example](examples/demo/demo_application.e)
@@ -60,3 +62,5 @@ Set `GOBO` to your Gobo installation and `GOBO_EIFFEL` to `ge` or `ise`.
 The library is void-safe and uses standard Eiffel classes.
 
 For development, run `just test` or `just example`; see the [justfile](justfile).
+
+Licensed under [Apache License 2.0](LICENSE). Copyright 2026 samedit66.
