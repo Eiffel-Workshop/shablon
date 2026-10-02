@@ -1,7 +1,6 @@
 # SHABLON 0.1.0
 
 First release of a small, Unicode-friendly string formatter for Eiffel.
-Prepared for release; publication is pending CI verification.
 
 ## Highlights
 
@@ -31,9 +30,8 @@ runtime dependencies beyond the selected compiler's base library.
 
 Local verification passed on macOS with EiffelStudio 25.02 and the installed Gobo:
 23 tests and 334 assertions per run, with Eiffel assertions enabled and disabled.
-CI is configured for Gobo 26.06 and EiffelStudio on Linux, macOS and Windows,
-including both assertion modes and the demo. Linux and Windows support is pending
-those CI results. Linux and Windows use EiffelStudio 25.12; macOS uses Homebrew's
+CI passed for Gobo 26.06 and EiffelStudio on Linux, macOS and Windows,
+including both assertion modes and the demo. Linux and Windows use EiffelStudio 25.12; macOS uses Homebrew's
 available EiffelStudio version, reported in the build log.
 
 ## Scope
