@@ -1,0 +1,15 @@
+.DS_Store
+/.gobo/
+/EIFGENs/
+/build/
+/shablon_tests
+/shablon_tests.exe
+/shablon_tests_no_assertions
+/shablon_tests_no_assertions.exe
+/shablon_demo
+/shablon_demo.exe
+*.epr
+*.o
+*.obj
+*.lib
+*.a

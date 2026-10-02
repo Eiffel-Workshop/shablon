@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0"
+    name="shablon_demo" uuid="BE84718D-0582-4832-83C9-F6F379F1B416">
+    <target name="demo">
+        <root class="DEMO_APPLICATION" feature="make"/>
+        <setting name="console_application" value="true"/>
+        <setting name="executable_name" value="shablon_demo"/>
+        <capability>
+            <void_safety support="all" use="all"/>
+        </capability>
+        <library name="gobo_free_elks" location="${GOBO}/library/free_elks/library_${GOBO_EIFFEL}.ecf">
+            <condition><custom name="GOBO_EIFFEL" value="ge"/></condition>
+        </library>
+        <library name="ise_base" location="$ISE_LIBRARY/library/base/base.ecf">
+            <condition><custom name="GOBO_EIFFEL" excluded_value="ge"/></condition>
+        </library>
+        <library name="shablon" location="../../shablon.ecf" readonly="true"/>
+        <cluster name="demo" location="." recursive="false"/>
+    </target>
+</system>

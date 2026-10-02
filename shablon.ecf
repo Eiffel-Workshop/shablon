@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0"
+    name="shablon" uuid="A64A1C5F-3395-482D-B68D-E2A94295435C" library_target="shablon">
+    <target name="shablon">
+        <root all_classes="true"/>
+        <option>
+            <assertions precondition="true" supplier_precondition="true" postcondition="true" invariant="true" check="true" loop="true"/>
+        </option>
+        <capability>
+            <void_safety support="all" use="all"/>
+        </capability>
+        <library name="gobo_free_elks" location="${GOBO}/library/free_elks/library_${GOBO_EIFFEL}.ecf">
+            <condition><custom name="GOBO_EIFFEL" value="ge"/></condition>
+        </library>
+        <library name="ise_base" location="$ISE_LIBRARY/library/base/base.ecf">
+            <condition><custom name="GOBO_EIFFEL" excluded_value="ge"/></condition>
+        </library>
+        <cluster name="src" location="src" recursive="false"/>
+    </target>
+    <target name="shablon_tests" extends="shablon">
+        <root class="SHABLON_TEST_SUITE" feature="make"/>
+        <option>
+            <assertions precondition="true" supplier_precondition="true" postcondition="true" invariant="true" check="true" loop="true"/>
+        </option>
+        <setting name="console_application" value="true"/>
+        <setting name="executable_name" value="shablon_tests"/>
+        <library name="gobo_test" location="${GOBO}/library/test/library_skl.ecf" readonly="true"/>
+        <library name="gobo_regexp" location="${GOBO}/library/regexp/library.ecf" readonly="true"/>
+        <cluster name="tests" location="tests" recursive="false"/>
+        <cluster name="testgen" location="build/testgen" recursive="false"/>
+    </target>
+    <!-- Standalone: Gobo retains assertion options on clusters inherited from a parent target. -->
+    <target name="shablon_tests_no_assertions">
+        <root class="SHABLON_TEST_SUITE" feature="make"/>
+        <option>
+            <assertions precondition="false" supplier_precondition="false" postcondition="false" invariant="false" check="false" loop="false"/>
+        </option>
+        <setting name="console_application" value="true"/>
+        <setting name="executable_name" value="shablon_tests_no_assertions"/>
+        <capability>
+            <void_safety support="all" use="all"/>
+        </capability>
+        <library name="gobo_free_elks" location="${GOBO}/library/free_elks/library_${GOBO_EIFFEL}.ecf">
+            <condition><custom name="GOBO_EIFFEL" value="ge"/></condition>
+        </library>
+        <library name="ise_base" location="$ISE_LIBRARY/library/base/base.ecf">
+            <condition><custom name="GOBO_EIFFEL" excluded_value="ge"/></condition>
+        </library>
+        <library name="gobo_test" location="${GOBO}/library/test/library_skl.ecf" readonly="true"/>
+        <library name="gobo_regexp" location="${GOBO}/library/regexp/library.ecf" readonly="true"/>
+        <cluster name="src" location="src" recursive="false"/>
+        <cluster name="tests" location="tests" recursive="false"/>
+        <cluster name="testgen" location="build/testgen" recursive="false"/>
+    </target>
+</system>
