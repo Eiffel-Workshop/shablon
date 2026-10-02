@@ -5,7 +5,7 @@
 [![ISE Eiffel](https://img.shields.io/badge/toolchain-ISE%20Eiffel-17365D)](https://www.eiffel.com/)
 [![Gobo Eiffel](https://img.shields.io/badge/toolchain-Gobo%20Eiffel-8B5A2B)](https://www.gobosoft.com/)
 
-[![CI](https://github.com/samedit66/shablon/actions/workflows/ci.yml/badge.svg)](https://github.com/samedit66/shablon/actions/workflows/ci.yml)
+[![CI](https://github.com/Eiffel-Workshop/shablon/actions/workflows/ci.yml/badge.svg)](https://github.com/Eiffel-Workshop/shablon/actions/workflows/ci.yml)
 
 A small and friendly string formatter for Eiffel.
 
@@ -49,7 +49,7 @@ See [SHABLON](src/shablon.e) for call styles and explicit tuples, and the
 Clone the library into your application:
 
 ```sh
-git clone https://github.com/samedit66/shablon.git vendor/shablon
+git clone https://github.com/Eiffel-Workshop/shablon.git vendor/shablon
 ```
 
 Reference it from your application's ECF:
