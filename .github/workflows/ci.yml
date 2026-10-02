@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GOBO_TAG: gobo-26.06
+  EIFFELSTUDIO_VERSION: "25.12"
+  EIFFELSTUDIO_REVISION: "98922"
+
+jobs:
+  gobo:
+    name: Gobo / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install just
+        run: cargo install --locked just
+      - name: Install Gobo
+        if: runner.os != 'Windows'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/install-gobo.sh
+      - name: Install Gobo
+        if: runner.os == 'Windows'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: .github/scripts/install-gobo.ps1
+      - name: Test and run example
+        if: runner.os != 'Windows'
+        run: |
+          just test-gobo
+          just test-gobo-no-assertions
+          just example-gobo
+      - name: Test and run example on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          just test-gobo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          just test-gobo-no-assertions
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          just example-gobo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  eiffelstudio:
+    name: EiffelStudio / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install just
+        run: cargo install --locked just
+      - name: Install Gobo
+        if: runner.os != 'Windows'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/install-gobo.sh
+      - name: Install Gobo
+        if: runner.os == 'Windows'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: .github/scripts/install-gobo.ps1
+      - name: Install EiffelStudio on Ubuntu
+        if: runner.os == 'Linux'
+        run: bash .github/scripts/install-eiffelstudio.sh
+      - name: Install EiffelStudio on macOS
+        if: runner.os == 'macOS'
+        run: brew install eiffelstudio
+      - name: Install EiffelStudio on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .github/scripts/install-eiffelstudio.ps1
+      - name: Report EiffelStudio version
+        run: ec -version
+      - name: Compile and test
+        if: runner.os != 'Windows'
+        run: |
+          just test-ise
+          just test-ise-no-assertions
+          just example-ise
+      - name: Compile and test
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call .github\scripts\setup-msvc.cmd
+          if errorlevel 1 exit /b 1
+          just test-ise
+          if errorlevel 1 exit /b 1
+          just test-ise-no-assertions
+          if errorlevel 1 exit /b 1
+          just example-ise
+          if errorlevel 1 exit /b 1
